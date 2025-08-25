@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24点游戏 - 修复版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #2c3e50;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 600px;
+            padding: 35px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        /* 数字按钮容器 */
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin: 40px 0;
+            min-height: 120px;
+            flex-wrap: wrap;
+        }
+        
+        .number-btn {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: bold;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            border: none;
+            position: relative;
+        }
+        
+        .number-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
+        }
+        
+        .number-btn.selected {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 4px #2ecc71, 0 15px 30px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            animation: pulse 0.5s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1.15); }
+            100% { transform: scale(1.2); }
+        }
+        
+        .number-btn.used {
+            opacity: 0.3;
+            transform: scale(0.8);
+            cursor: not-allowed;
+            animation: none;
+        }
+        
+        .number-btn.new {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            animation: popIn 0.6s;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 胜利时的24按钮 */
+        .number-btn.victory {
+            width: 150px;
+            height: 150px;
+            font-size: 60px;
+            background: linear-gradient(145deg, #ffd700, #ff8c00);
+            animation: victoryPulse 1s infinite alternate, rotate 3s infinite linear;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        @keyframes victoryPulse {
+            0% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+            100% { transform: scale(1.1); box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(5deg) scale(1.05); }
+            50% { transform: rotate(0deg) scale(1.1); }
+            75% { transform: rotate(-5deg) scale(1.05); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+        
+        /* 运算符按钮 */
+        .operators-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 35px 0;
+        }
+        
+        .operator-btn {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+            border: none;
+        }
+        
+        .operator-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .operator-btn.selected {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 4px #3498db, 0 15px 30px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            animation: operatorPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes operatorPulse {
+            0% { transform: scale(1.15); }
+            100% { transform: scale(1.2); }
+        }
+        
+        .operator-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 35px 0;
+        }
+        
+        .action-btn {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        #new-game-btn {
+            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        #reset-btn {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 计算过程显示 */
+        .calculation-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            min-height: 80px;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.08);
+            border: 3px solid #e9ecef;
+            font-weight: 600;
+        }
+        
+        /* 结果提示 */
+        .result {
+            min-height: 90px;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            font-weight: 700;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 3px solid #2ecc71;
+            animation: celebrate 1.2s;
+        }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+            border: 3px solid #e74c3c;
+        }
+        
+        .info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #2980b9;
+            border: 3px solid #3498db;
+        }
+        
+        /* 烟花特效 */
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fireworkAnimation 1s forwards;
+            z-index: 1;
+        }
+        
+        @keyframes fireworkAnimation {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* 规则说明 */
+        .rules {
+            margin-top: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: left;
+        }
+        
+        .rules h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+        }
+        
+        .rules p {
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+                border-radius: 20px;
+            }
+            
+            .number-btn {
+                width: 85px;
+                height: 85px;
+                font-size: 36px;
+            }
+            
+            .number-btn.victory {
+                width: 120px;
+                height: 120px;
+                font-size: 50px;
+            }
+            
+            .operator-btn {
+                width: 75px;
+                height: 75px;
+                font-size: 30px;
+            }
+            
+            .calculation-display {
+                font-size: 22px;
+                padding: 15px;
+            }
+            
+            .result {
+                font-size: 19px;
+                padding: 20px;
+            }
+            
+            .action-btn {
+                padding: 15px 25px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calculator"></i> 24点游戏</h1>
+            <p class="description">选择两个数字和一个运算符进行合并计算</p>
+        </div>
+        
+        <div class="calculation-display" id="calculation">
+            请选择第一个数字
+        </div>
+        
+        <div class="numbers-container" id="numbers-container">
+            <!-- 数字按钮将由JavaScript动态生成 -->
+        </div>
+        
+        <div class="operators-container">
+            <button class="operator-btn" data-operator="+">+</button>
+            <button class="operator-btn" data-operator="-">−</button>
+            <button class="operator-btn" data-operator="*">×</button>
+            <button class="operator-btn" data-operator="/">÷</button>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn" id="new-game-btn">新游戏</button>
+            <button class="action-btn" id="reset-btn">重置当前</button>
+        </div>
+        
+        <div class="result info" id="result">
+            游戏准备就绪！请开始计算
+        </div>
+        
+        <div class="rules">
+            <h3><i class="fas fa-info-circle"></i> 游戏玩法</h3>
+            <p>1. 点击选择第一个数字（会高亮显示）</p>
+            <p>2. 点击选择运算符（+ − × ÷）</p>
+            <p>3. 点击选择第二个数字</p>
+            <p>4. 系统自动计算并生成新数字，替换已使用的数字</p>
+            <p>5. 重复操作直到得到24点即为胜利！</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const numbersContainer = document.getElementById('numbers-container');
+            const calculationDisplay = document.getElementById('calculation');
+            const resultDisplay = document.getElementById('result');
+            const newGameBtn = document.getElementById('new-game-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const operatorBtns = document.querySelectorAll('.operator-btn');
+            
+            let numbers = [];
+            let selectedNumberIndex = null;
+            let selectedOperator = null;
+            let gameState = 'selectFirst';
+            let calculationSteps = [];
+            
+            // 生成随机数字（1-13之间）
+            function generateNumbers() {
+                numbers = [];
+                for (let i = 0; i < 4; i++) {
+                    numbers.push(Math.floor(Math.random() * 13) + 1);
+                }
+                
+                renderNumbers();
+                resetGameState();
+                
+                resultDisplay.className = 'result info';
+                resultDisplay.innerHTML = '<i class="fas fa-play"></i> 游戏开始！请选择第一个数字';
+                calculationDisplay.textContent = '请选择第一个数字';
+                calculationSteps = [];
+            }
+            
+            // 渲染数字按钮
+            function renderNumbers() {
+                numbersContainer.innerHTML = '';
+                
+                numbers.forEach((num, index) => {
+                    if (num !== null) {
+                        const btn = document.createElement('button');
+                        btn.className = 'number-btn';
+                        btn.textContent = Number.isInteger(num) ? num : num.toFixed(2);
+                        btn.dataset.index = index;
+                        btn.addEventListener('click', () => handleNumberClick(index));
+                        numbersContainer.appendChild(btn);
+                    }
+                });
+            }
+            
+            // 重置游戏状态
+            function resetGameState() {
+                selectedNumberIndex = null;
+                selectedOperator = null;
+                gameState = 'selectFirst';
+                
+                // 重置运算符按钮状态
+                resetOperators();
+                
+                // 重置数字按钮状态
+                document.querySelectorAll('.number-btn').forEach(btn => {
+                    btn.classList.remove('selected', 'used');
+                });
+            }
+            
+            // 重置运算符按钮状态
+            function resetOperators() {
+                operatorBtns.forEach(btn => {
+                    btn.classList.remove('selected', 'disabled');
+                });
+            }
+            
+            // 处理数字按钮点击
+            function handleNumberClick(index) {
+                if (numbers[index] === null || gameState === 'gameOver') return;
+                
+                if (gameState === 'selectFirst') {
+                    // 选择第一个数字
+                    selectedNumberIndex = index;
+                    document.querySelectorAll('.number-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    const selectedBtn = document.querySelector(`.number-btn[data-index="${index}"]`);
+                    selectedBtn.classList.add('selected');
+                    
+                    calculationDisplay.textContent = `第一个数字: ${numbers[index]}`;
+                    gameState = 'selectOperator';
+                    resultDisplay.textContent = '请选择运算符';
+                    
+                } else if (gameState === 'selectSecond') {
+                    // 选择第二个数字
+                    if (index === selectedNumberIndex) {
+                        resultDisplay.className = 'result error';
+                        resultDisplay.textContent = '不能选择同一个数字两次';
+                        return;
+                    }
+                    
+                    // 为两个数字按钮添加动画效果
+                    const firstBtn = document.querySelector(`.number-btn[data-index="${selectedNumberIndex}"]`);
+                    const secondBtn = document.querySelector(`.number-btn[data-index="${index}"]`);
+                    
+                    firstBtn.classList.add('selected');
+                    secondBtn.classList.add('selected');
+                    
+                    const firstNum = numbers[selectedNumberIndex];
+                    const secondNum = numbers[index];
+                    calculationDisplay.textContent = `计算: ${firstNum} ${getOperatorSymbol(selectedOperator)} ${secondNum}`;
+                    
+                    // 执行计算
+                    setTimeout(() => {
+                        calculateResult(selectedNumberIndex, index, selectedOperator);
+                    }, 500);
+                }
+            }
+            
+            // 处理运算符按钮点击
+            operatorBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (gameState === 'selectOperator') {
+                        selectedOperator = this.dataset.operator;
+                        
+                        // 更新运算符按钮状态
+                        operatorBtns.forEach(b => b.classList.remove('selected'));
+                        this.classList.add('selected');
+                        
+                        calculationDisplay.textContent = `已选择: ${numbers[selectedNumberIndex]} ${getOperatorSymbol(selectedOperator)} ?`;
+                        gameState = 'selectSecond';
+                        resultDisplay.textContent = '请选择第二个数字';
+                    }
+                });
+            });
+            
+            // 获取运算符符号
+            function getOperatorSymbol(op) {
+                switch(op) {
+                    case '+': return '+';
+                    case '-': return '−';
+                    case '*': return '×';
+                    case '/': return '÷';
+                    default: return op;
+                }
+            }
+            
+            // 创建烟花特效
+            function createFireworks() {
+                const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8c00', '#ffd700'];
+                
+                for (let i = 0; i < 100; i++) {
+                    setTimeout(() => {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        firework.style.left = '50%';
+                        firework.style.top = '50%';
+                        firework.style.setProperty('--tx', `${Math.random() * 600 - 300}px`);
+                        firework.style.setProperty('--ty', `${Math.random() * 600 - 300}px`);
+                        
+                        document.body.appendChild(firework);
+                        
+                        // 移除烟花元素
+                        setTimeout(() => {
+                            firework.remove();
+                        }, 1000);
+                    }, i * 20);
+                }
+            }
+            
+            // 显示胜利状态
+            function showVictory() {
+                // 重置运算符按钮状态
+                resetOperators();
+                
+                numbersContainer.innerHTML = '';
+                
+                const victoryBtn = document.createElement('button');
+                victoryBtn.className = 'number-btn victory';
+                victoryBtn.textContent = '24';
+                victoryBtn.style.margin = '0 auto';
+                
+                numbersContainer.appendChild(victoryBtn);
+                
+                // 创建烟花特效
+                createFireworks();
+                
+                resultDisplay.className = 'result success';
+                resultDisplay.innerHTML = '<i class="fas fa-trophy"></i> 恭喜！您成功得到了24点！';
+                calculationDisplay.textContent = calculationSteps.join(' → ');
+                gameState = 'gameOver';
+            }
+            
+            // 计算结果
+            function calculateResult(firstIndex, secondIndex, operator) {
+                const firstNum = numbers[firstIndex];
+                const secondNum = numbers[secondIndex];
+                let result;
+                
+                switch(operator) {
+                    case '+':
+                        result = firstNum + secondNum;
+                        break;
+                    case '-':
+                        result = firstNum - secondNum;
+                        break;
+                    case '*':
+                        result = firstNum * secondNum;
+                        break;
+                    case '/':
+                        if (secondNum === 0) {
+                            resultDisplay.className = 'result error';
+                            resultDisplay.textContent = '错误：不能除以零';
+                            resetGameState();
+                            calculationDisplay.textContent = '计算错误，请重新开始';
+                            return;
+                        }
+                        result = firstNum / secondNum;
+                        break;
+                }
+                
+                // 记录计算步骤
+                calculationSteps.push(`${firstNum} ${getOperatorSymbol(operator)} ${secondNum} = ${result}`);
+                
+                // 更新数字数组：第一个位置存储结果，第二个位置设为null
+                numbers[firstIndex] = result;
+                numbers[secondIndex] = null;
+                
+                // 检查是否获胜
+                const activeNumbers = numbers.filter(num => num !== null);
+                if (activeNumbers.length === 1 && Math.abs(result - 24) < 0.0001) {
+                    // 胜利！
+                    showVictory();
+                } else if (activeNumbers.length === 1) {
+                    // 只剩一个数字但不是24
+                    resetOperators(); // 重置运算符状态
+                    resultDisplay.className = 'result error';
+                    resultDisplay.textContent = `游戏结束！结果为 ${result}，不是24`;
+                    calculationDisplay.textContent = calculationSteps.join(' → ');
+                    gameState = 'gameOver';
+                } else {
+                    // 继续游戏
+                    resultDisplay.className = 'result info';
+                    resultDisplay.textContent = `计算结果: ${result}，继续选择数字`;
+                    calculationDisplay.textContent = `${firstNum} ${getOperatorSymbol(operator)} ${secondNum} = ${result}`;
+                    
+                    // 重新渲染数字按钮
+                    setTimeout(() => {
+                        renderNumbers();
+                        resetOperators(); // 重置运算符状态
+                        gameState = 'selectFirst';
+                        resultDisplay.textContent = '请选择第一个数字';
+                    }, 800);
+                }
+            }
+            
+            // 事件监听
+            newGameBtn.addEventListener('click', generateNumbers);
+            resetBtn.addEventListener('click', function() {
+                if (numbers.length > 0) {
+                    generateNumbers();
+                }
+            });
+            
+            // 初始游戏
+            generateNumbers();
+        });
+    </script>
+</body>
+</html>
