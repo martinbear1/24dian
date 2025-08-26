@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>24点游戏 - 修复版</title>
+    <title>24点游戏 - 扑克牌对角显示</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,7 +14,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -30,7 +30,7 @@
             border-radius: 25px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             padding: 35px;
             text-align: center;
             position: relative;
@@ -46,7 +46,7 @@
             font-size: 36px;
             font-weight: 800;
             margin-bottom: 15px;
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -57,79 +57,126 @@
             margin-bottom: 10px;
         }
         
-        /* 数字按钮容器 */
-        .numbers-container {
+        /* 扑克牌容器 */
+        .cards-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
             margin: 40px 0;
-            min-height: 120px;
+            min-height: 180px;
             flex-wrap: wrap;
         }
         
-        .number-btn {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
-            color: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            font-weight: bold;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        /* 扑克牌样式 - 对角显示 */
+        .playing-card {
+            width: 120px;
+            height: 170px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: all 0.3s;
             user-select: none;
-            border: none;
+            border: 1px solid #ddd;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
         }
         
-        .number-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
+        .playing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
         }
         
-        .number-btn.selected {
-            transform: scale(1.15);
+        .playing-card.selected {
+            transform: translateY(-12px) rotate(5deg);
             box-shadow: 0 0 0 4px #2ecc71, 0 15px 30px rgba(0, 0, 0, 0.25);
-            background: linear-gradient(145deg, #2ecc71, #27ae60);
-            animation: pulse 0.5s infinite alternate;
+            animation: cardPulse 0.5s infinite alternate;
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1.15); }
-            100% { transform: scale(1.2); }
+        @keyframes cardPulse {
+            0% { transform: translateY(-12px) rotate(5deg); }
+            100% { transform: translateY(-14px) rotate(5deg); }
         }
         
-        .number-btn.used {
+        .playing-card.used {
             opacity: 0.3;
             transform: scale(0.8);
             cursor: not-allowed;
             animation: none;
         }
         
-        .number-btn.new {
-            background: linear-gradient(145deg, #2ecc71, #27ae60);
-            animation: popIn 0.6s;
+        .playing-card.new {
+            animation: cardPopIn 0.6s;
         }
         
-        @keyframes popIn {
+        @keyframes cardPopIn {
             0% { transform: scale(0); opacity: 0; }
-            70% { transform: scale(1.2); }
+            70% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
         
-        /* 胜利时的24按钮 */
-        .number-btn.victory {
-            width: 150px;
-            height: 150px;
-            font-size: 60px;
+        /* 扑克牌左上角数字和花色 */
+        .card-corner-top {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 扑克牌右下角数字和花色 */
+        .card-corner-bottom {
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: rotate(180deg);
+        }
+        
+        /* 扑克牌中间的大数字 */
+        .card-center {
+            font-size: 50px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        /* 花色颜色 */
+        .red-suit {
+            color: #e74c3c;
+        }
+        
+        .black-suit {
+            color: #2c3e50;
+        }
+        
+        /* 胜利时的24卡片 */
+        .playing-card.victory {
+            width: 160px;
+            height: 220px;
             background: linear-gradient(145deg, #ffd700, #ff8c00);
+            color: #c0392b;
             animation: victoryPulse 1s infinite alternate, rotate 3s infinite linear;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        .playing-card.victory .card-center {
+            font-size: 70px;
         }
         
         @keyframes victoryPulse {
@@ -215,12 +262,12 @@
         }
         
         #new-game-btn {
-            background: linear-gradient(145deg, #6a11cb, #2575fc);
+            background: linear-gradient(145deg, #c0392b, #e74c3c);
             color: white;
         }
         
         #reset-btn {
-            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            background: linear-gradient(145deg, #2c3e50, #34495e);
             color: white;
         }
         
@@ -331,22 +378,32 @@
         }
         
         /* 响应式设计 */
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .container {
                 padding: 25px;
                 border-radius: 20px;
             }
             
-            .number-btn {
-                width: 85px;
-                height: 85px;
-                font-size: 36px;
+            .playing-card {
+                width: 100px;
+                height: 140px;
             }
             
-            .number-btn.victory {
-                width: 120px;
-                height: 120px;
-                font-size: 50px;
+            .playing-card.victory {
+                width: 130px;
+                height: 180px;
+            }
+            
+            .card-corner-top, .card-corner-bottom {
+                font-size: 16px;
+            }
+            
+            .card-center {
+                font-size: 40px;
+            }
+            
+            .playing-card.victory .card-center {
+                font-size: 55px;
             }
             
             .operator-btn {
@@ -375,16 +432,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-calculator"></i> 24点游戏</h1>
-            <p class="description">选择两个数字和一个运算符进行合并计算</p>
+            <h1><i class="fas fa-cards"></i> 24点扑克游戏</h1>
+            <p class="description">选择两张扑克牌和一个运算符进行合并计算</p>
         </div>
         
         <div class="calculation-display" id="calculation">
-            请选择第一个数字
+            请选择第一张扑克牌
         </div>
         
-        <div class="numbers-container" id="numbers-container">
-            <!-- 数字按钮将由JavaScript动态生成 -->
+        <div class="cards-container" id="cards-container">
+            <!-- 扑克牌将由JavaScript动态生成 -->
         </div>
         
         <div class="operators-container">
@@ -405,73 +462,115 @@
         
         <div class="rules">
             <h3><i class="fas fa-info-circle"></i> 游戏玩法</h3>
-            <p>1. 点击选择第一个数字（会高亮显示）</p>
+            <p>1. 点击选择第一张扑克牌（会高亮显示）</p>
             <p>2. 点击选择运算符（+ − × ÷）</p>
-            <p>3. 点击选择第二个数字</p>
-            <p>4. 系统自动计算并生成新数字，替换已使用的数字</p>
+            <p>3. 点击选择第二张扑克牌</p>
+            <p>4. 系统自动计算并生成新扑克牌，替换已使用的扑克牌</p>
             <p>5. 重复操作直到得到24点即为胜利！</p>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const numbersContainer = document.getElementById('numbers-container');
+            const cardsContainer = document.getElementById('cards-container');
             const calculationDisplay = document.getElementById('calculation');
             const resultDisplay = document.getElementById('result');
             const newGameBtn = document.getElementById('new-game-btn');
             const resetBtn = document.getElementById('reset-btn');
             const operatorBtns = document.querySelectorAll('.operator-btn');
             
-            let numbers = [];
-            let selectedNumberIndex = null;
+            let cards = []; // 存储扑克牌对象 {value: 数字, suit: 花色, symbol: 显示符号}
+            let selectedCardIndex = null;
             let selectedOperator = null;
             let gameState = 'selectFirst';
             let calculationSteps = [];
             
-            // 生成随机数字（1-13之间）
-            function generateNumbers() {
-                numbers = [];
+            // 扑克牌花色
+            const suits = [
+                { symbol: '♠', color: 'black' }, // 黑桃
+                { symbol: '♥', color: 'red' },   // 红心
+                { symbol: '♦', color: 'red' },   // 方块
+                { symbol: '♣', color: 'black' }  // 梅花
+            ];
+            
+            // 生成随机扑克牌（1-13之间）
+            function generateCards() {
+                cards = [];
                 for (let i = 0; i < 4; i++) {
-                    numbers.push(Math.floor(Math.random() * 13) + 1);
+                    const value = Math.floor(Math.random() * 13) + 1;
+                    const suit = suits[Math.floor(Math.random() * suits.length)];
+                    
+                    // 确定显示符号
+                    let symbol;
+                    switch(value) {
+                        case 1: symbol = 'A'; break;
+                        case 11: symbol = 'J'; break;
+                        case 12: symbol = 'Q'; break;
+                        case 13: symbol = 'K'; break;
+                        default: symbol = value.toString();
+                    }
+                    
+                    cards.push({ value, suit, symbol });
                 }
                 
-                renderNumbers();
+                renderCards();
                 resetGameState();
                 
                 resultDisplay.className = 'result info';
-                resultDisplay.innerHTML = '<i class="fas fa-play"></i> 游戏开始！请选择第一个数字';
-                calculationDisplay.textContent = '请选择第一个数字';
+                resultDisplay.innerHTML = '<i class="fas fa-play"></i> 游戏开始！请选择第一张扑克牌';
+                calculationDisplay.textContent = '请选择第一张扑克牌';
                 calculationSteps = [];
             }
             
-            // 渲染数字按钮
-            function renderNumbers() {
-                numbersContainer.innerHTML = '';
+            // 渲染扑克牌
+            function renderCards() {
+                cardsContainer.innerHTML = '';
                 
-                numbers.forEach((num, index) => {
-                    if (num !== null) {
-                        const btn = document.createElement('button');
-                        btn.className = 'number-btn';
-                        btn.textContent = Number.isInteger(num) ? num : num.toFixed(2);
-                        btn.dataset.index = index;
-                        btn.addEventListener('click', () => handleNumberClick(index));
-                        numbersContainer.appendChild(btn);
+                cards.forEach((card, index) => {
+                    if (card !== null) {
+                        const cardEl = document.createElement('div');
+                        cardEl.className = 'playing-card';
+                        cardEl.dataset.index = index;
+                        cardEl.addEventListener('click', () => handleCardClick(index));
+                        
+                        // 扑克牌左上角
+                        const cornerTopEl = document.createElement('div');
+                        cornerTopEl.className = 'card-corner-top';
+                        cornerTopEl.innerHTML = `<div class="${card.suit.color}-suit">${card.symbol}</div>
+                                                <div class="${card.suit.color}-suit">${card.suit.symbol}</div>`;
+                        
+                        // 扑克牌中间
+                        const centerEl = document.createElement('div');
+                        centerEl.className = 'card-center';
+                        centerEl.innerHTML = `<span class="${card.suit.color}-suit">${card.symbol}</span>`;
+                        
+                        // 扑克牌右下角
+                        const cornerBottomEl = document.createElement('div');
+                        cornerBottomEl.className = 'card-corner-bottom';
+                        cornerBottomEl.innerHTML = `<div class="${card.suit.color}-suit">${card.symbol}</div>
+                                                  <div class="${card.suit.color}-suit">${card.suit.symbol}</div>`;
+                        
+                        cardEl.appendChild(cornerTopEl);
+                        cardEl.appendChild(centerEl);
+                        cardEl.appendChild(cornerBottomEl);
+                        
+                        cardsContainer.appendChild(cardEl);
                     }
                 });
             }
             
             // 重置游戏状态
             function resetGameState() {
-                selectedNumberIndex = null;
+                selectedCardIndex = null;
                 selectedOperator = null;
                 gameState = 'selectFirst';
                 
                 // 重置运算符按钮状态
                 resetOperators();
                 
-                // 重置数字按钮状态
-                document.querySelectorAll('.number-btn').forEach(btn => {
-                    btn.classList.remove('selected', 'used');
+                // 重置扑克牌状态
+                document.querySelectorAll('.playing-card').forEach(card => {
+                    card.classList.remove('selected', 'used');
                 });
             }
             
@@ -482,45 +581,45 @@
                 });
             }
             
-            // 处理数字按钮点击
-            function handleNumberClick(index) {
-                if (numbers[index] === null || gameState === 'gameOver') return;
+            // 处理扑克牌点击
+            function handleCardClick(index) {
+                if (cards[index] === null || gameState === 'gameOver') return;
                 
                 if (gameState === 'selectFirst') {
-                    // 选择第一个数字
-                    selectedNumberIndex = index;
-                    document.querySelectorAll('.number-btn').forEach(btn => {
-                        btn.classList.remove('selected');
+                    // 选择第一张扑克牌
+                    selectedCardIndex = index;
+                    document.querySelectorAll('.playing-card').forEach(card => {
+                        card.classList.remove('selected');
                     });
-                    const selectedBtn = document.querySelector(`.number-btn[data-index="${index}"]`);
-                    selectedBtn.classList.add('selected');
+                    const selectedCard = document.querySelector(`.playing-card[data-index="${index}"]`);
+                    selectedCard.classList.add('selected');
                     
-                    calculationDisplay.textContent = `第一个数字: ${numbers[index]}`;
+                    calculationDisplay.textContent = `第一张牌: ${cards[index].symbol}`;
                     gameState = 'selectOperator';
                     resultDisplay.textContent = '请选择运算符';
                     
                 } else if (gameState === 'selectSecond') {
-                    // 选择第二个数字
-                    if (index === selectedNumberIndex) {
+                    // 选择第二张扑克牌
+                    if (index === selectedCardIndex) {
                         resultDisplay.className = 'result error';
-                        resultDisplay.textContent = '不能选择同一个数字两次';
+                        resultDisplay.textContent = '不能选择同一张扑克牌两次';
                         return;
                     }
                     
-                    // 为两个数字按钮添加动画效果
-                    const firstBtn = document.querySelector(`.number-btn[data-index="${selectedNumberIndex}"]`);
-                    const secondBtn = document.querySelector(`.number-btn[data-index="${index}"]`);
+                    // 为两张扑克牌添加动画效果
+                    const firstCard = document.querySelector(`.playing-card[data-index="${selectedCardIndex}"]`);
+                    const secondCard = document.querySelector(`.playing-card[data-index="${index}"]`);
                     
-                    firstBtn.classList.add('selected');
-                    secondBtn.classList.add('selected');
+                    firstCard.classList.add('selected');
+                    secondCard.classList.add('selected');
                     
-                    const firstNum = numbers[selectedNumberIndex];
-                    const secondNum = numbers[index];
-                    calculationDisplay.textContent = `计算: ${firstNum} ${getOperatorSymbol(selectedOperator)} ${secondNum}`;
+                    const firstValue = cards[selectedCardIndex].value;
+                    const secondValue = cards[index].value;
+                    calculationDisplay.textContent = `计算: ${firstValue} ${getOperatorSymbol(selectedOperator)} ${secondValue}`;
                     
                     // 执行计算
                     setTimeout(() => {
-                        calculateResult(selectedNumberIndex, index, selectedOperator);
+                        calculateResult(selectedCardIndex, index, selectedOperator);
                     }, 500);
                 }
             }
@@ -535,9 +634,9 @@
                         operatorBtns.forEach(b => b.classList.remove('selected'));
                         this.classList.add('selected');
                         
-                        calculationDisplay.textContent = `已选择: ${numbers[selectedNumberIndex]} ${getOperatorSymbol(selectedOperator)} ?`;
+                        calculationDisplay.textContent = `已选择: ${cards[selectedCardIndex].symbol} ${getOperatorSymbol(selectedOperator)} ?`;
                         gameState = 'selectSecond';
-                        resultDisplay.textContent = '请选择第二个数字';
+                        resultDisplay.textContent = '请选择第二张扑克牌';
                     }
                 });
             });
@@ -582,14 +681,31 @@
                 // 重置运算符按钮状态
                 resetOperators();
                 
-                numbersContainer.innerHTML = '';
+                cardsContainer.innerHTML = '';
                 
-                const victoryBtn = document.createElement('button');
-                victoryBtn.className = 'number-btn victory';
-                victoryBtn.textContent = '24';
-                victoryBtn.style.margin = '0 auto';
+                const victoryCard = document.createElement('div');
+                victoryCard.className = 'playing-card victory';
                 
-                numbersContainer.appendChild(victoryBtn);
+                // 扑克牌左上角
+                const cornerTopEl = document.createElement('div');
+                cornerTopEl.className = 'card-corner-top';
+                cornerTopEl.innerHTML = `<div>24</div>`;
+                
+                // 扑克牌中间
+                const centerEl = document.createElement('div');
+                centerEl.className = 'card-center';
+                centerEl.innerHTML = `<span>24</span>`;
+                
+                // 扑克牌右下角
+                const cornerBottomEl = document.createElement('div');
+                cornerBottomEl.className = 'card-corner-bottom';
+                cornerBottomEl.innerHTML = `<div>24</div>`;
+                
+                victoryCard.appendChild(cornerTopEl);
+                victoryCard.appendChild(centerEl);
+                victoryCard.appendChild(cornerBottomEl);
+                
+                cardsContainer.appendChild(victoryCard);
                 
                 // 创建烟花特效
                 createFireworks();
@@ -602,46 +718,63 @@
             
             // 计算结果
             function calculateResult(firstIndex, secondIndex, operator) {
-                const firstNum = numbers[firstIndex];
-                const secondNum = numbers[secondIndex];
+                const firstValue = cards[firstIndex].value;
+                const secondValue = cards[secondIndex].value;
                 let result;
                 
                 switch(operator) {
                     case '+':
-                        result = firstNum + secondNum;
+                        result = firstValue + secondValue;
                         break;
                     case '-':
-                        result = firstNum - secondNum;
+                        result = firstValue - secondValue;
                         break;
                     case '*':
-                        result = firstNum * secondNum;
+                        result = firstValue * secondValue;
                         break;
                     case '/':
-                        if (secondNum === 0) {
+                        if (secondValue === 0) {
                             resultDisplay.className = 'result error';
                             resultDisplay.textContent = '错误：不能除以零';
                             resetGameState();
                             calculationDisplay.textContent = '计算错误，请重新开始';
                             return;
                         }
-                        result = firstNum / secondNum;
+                        result = firstValue / secondValue;
                         break;
                 }
                 
                 // 记录计算步骤
-                calculationSteps.push(`${firstNum} ${getOperatorSymbol(operator)} ${secondNum} = ${result}`);
+                calculationSteps.push(`${firstValue} ${getOperatorSymbol(operator)} ${secondValue} = ${result}`);
                 
-                // 更新数字数组：第一个位置存储结果，第二个位置设为null
-                numbers[firstIndex] = result;
-                numbers[secondIndex] = null;
+                // 确定新扑克牌的花色（使用第一张牌的花色）
+                const suit = cards[firstIndex].suit;
+                
+                // 确定显示符号
+                let symbol;
+                if (Number.isInteger(result) && result >= 1 && result <= 13) {
+                    switch(result) {
+                        case 1: symbol = 'A'; break;
+                        case 11: symbol = 'J'; break;
+                        case 12: symbol = 'Q'; break;
+                        case 13: symbol = 'K'; break;
+                        default: symbol = result.toString();
+                    }
+                } else {
+                    symbol = result.toFixed(2);
+                }
+                
+                // 更新扑克牌数组：第一个位置存储结果，第二个位置设为null
+                cards[firstIndex] = { value: result, suit, symbol };
+                cards[secondIndex] = null;
                 
                 // 检查是否获胜
-                const activeNumbers = numbers.filter(num => num !== null);
-                if (activeNumbers.length === 1 && Math.abs(result - 24) < 0.0001) {
+                const activeCards = cards.filter(card => card !== null);
+                if (activeCards.length === 1 && Math.abs(result - 24) < 0.0001) {
                     // 胜利！
                     showVictory();
-                } else if (activeNumbers.length === 1) {
-                    // 只剩一个数字但不是24
+                } else if (activeCards.length === 1) {
+                    // 只剩一张扑克牌但不是24
                     resetOperators(); // 重置运算符状态
                     resultDisplay.className = 'result error';
                     resultDisplay.textContent = `游戏结束！结果为 ${result}，不是24`;
@@ -650,29 +783,29 @@
                 } else {
                     // 继续游戏
                     resultDisplay.className = 'result info';
-                    resultDisplay.textContent = `计算结果: ${result}，继续选择数字`;
-                    calculationDisplay.textContent = `${firstNum} ${getOperatorSymbol(operator)} ${secondNum} = ${result}`;
+                    resultDisplay.textContent = `计算结果: ${result}，继续选择扑克牌`;
+                    calculationDisplay.textContent = `${firstValue} ${getOperatorSymbol(operator)} ${secondValue} = ${result}`;
                     
-                    // 重新渲染数字按钮
+                    // 重新渲染扑克牌
                     setTimeout(() => {
-                        renderNumbers();
+                        renderCards();
                         resetOperators(); // 重置运算符状态
                         gameState = 'selectFirst';
-                        resultDisplay.textContent = '请选择第一个数字';
+                        resultDisplay.textContent = '请选择第一张扑克牌';
                     }, 800);
                 }
             }
             
             // 事件监听
-            newGameBtn.addEventListener('click', generateNumbers);
+            newGameBtn.addEventListener('click', generateCards);
             resetBtn.addEventListener('click', function() {
-                if (numbers.length > 0) {
-                    generateNumbers();
+                if (cards.length > 0) {
+                    generateCards();
                 }
             });
             
             // 初始游戏
-            generateNumbers();
+            generateCards();
         });
     </script>
 </body>
